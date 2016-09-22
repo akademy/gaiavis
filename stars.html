@@ -1,0 +1,136 @@
+ <html>
+ <head>
+     <style>
+         rect {
+             fill:black;
+         }
+         g {
+             fill:white;
+         }
+     </style>
+ </head>
+ <body>
+ <script src="https://d3js.org/d3.v4.min.js"></script>
+ <script>
+     var svg = d3.select("body")
+                    .append("svg"),
+             bufferSvg = 25,
+             sizeSvg = {"w":(360*3 + bufferSvg),"h":(180*3 + bufferSvg)};
+
+     svg.attr("width", sizeSvg.w )
+             .attr("height", sizeSvg.h );
+
+     svg.append("rect")
+             .attr("x",bufferSvg)
+             .attr("y",0)
+             .attr("width",sizeSvg.w - bufferSvg)
+             .attr("height",sizeSvg.h - bufferSvg);
+
+     //
+     // "csvs/stars-2044.csv";
+     // "csvs/stars-10283.csv";
+     // "csvs/stars-20571.csv";
+     // "csvs/stars-27428.csv";
+     // "csvs/stars-41142.csv";
+     var csvfile = "csvs/stars-4013.csv";
+     d3.csv( csvfile, function( d ) {
+         var ra = d.ra * 1,
+				 l = d.l *1;
+
+         if( ra > 180 ) { ra -= 360; }
+		 if( l > 180 ) { l -= 360;}
+		 ra = ra * -1;
+         /*return {
+             ra : ra, ,
+             dec: d.b *1, //d.dec * 1,
+             flux: d.phot_g_mean_flux * 1
+         }*/
+         //return [ra, d.b*1, d.phot_g_mean_flux *1];
+         return [ra, d.dec*1, d.phot_g_mean_flux *1,l,d.b*1];
+     }, function( data ) {
+
+         var total = data.length;
+         console.log(total, data[0]);
+
+         //var extentRa = d3.extent(data,function(d) { return d[0]; });
+         //var extentDec = d3.extent(data,function(d) { return d[1]; });
+         var extentFlux = d3.extent(data,function(d) { return d[2]; });
+
+         //console.log(extentRa, extentDec, extentFlux);
+         var xScale = d3.scaleLinear()
+                 .range([bufferSvg,sizeSvg.w])
+                 .domain([-180,180]);//extentRa);
+
+         var yScale = d3.scaleLinear()
+                 .range([0,sizeSvg.h-bufferSvg])
+                 .domain([90,-90]);//extentDec);
+
+         var fluxScale = d3.scaleLinear()
+                 .range([1,5])
+                 .domain(extentFlux);
+
+         var fluxScaleColour = d3.scaleLog()
+                 .range([10,256])
+                 .domain(extentFlux);
+
+         var xAxisBottom = d3.axisBottom(xScale);
+         svg.append("g")
+                 .attr("class", "xaxis bottom")
+                 .attr("transform", "translate(0,"+ (sizeSvg.h-bufferSvg+1) + ")")
+                 .call(xAxisBottom);
+
+
+         var yAxisLeft= d3.axisLeft(yScale);
+         svg.append("g")
+                 .attr("class", "yaxis left")
+                 .attr("transform", "translate(" +(bufferSvg-2) + ",0)")
+                 .call(yAxisLeft);
+
+         svg.selectAll("circle")
+                 .data(data)
+                 .enter()
+                 .append("circle")
+                 .attr("cx",function(d) {return xScale(d[0]);})
+                 .attr("cy",function(d) {return yScale(d[1]);})
+                 .attr("r",function(d) {return fluxScale(d[2]);})
+                 //.attr("fill","white")
+                 //.transition()
+                 //.delay(function(d,i) { return xScale(d[0])*10;})
+                 .attr("fill",function(d) {
+                    var col = Math.ceil(fluxScaleColour(d[2]))+"";
+                    return "rgb(" + col + "," + col + "," + col + ")";
+                });
+
+		 var radec = true;
+		 d3.interval( function() {
+			 if( radec ) {
+				 svg.selectAll("circle")
+						 .transition()
+						 .delay( function(d,i) { return i/40; })
+						 .duration(1000)
+						 .attr("cx", function (d) {
+							 return xScale(d[3]);
+						 })
+						 .attr("cy", function (d) {
+							 return yScale(d[4]);
+						 });
+			 }
+			 else {
+					 svg.selectAll("circle")
+							 .transition()
+							 .duration(1000)
+							 .delay( function(d,i) { return i/40; })
+							 .attr("cx", function (d) {
+								 return xScale(d[0]);
+							 })
+							 .attr("cy", function (d) {
+								 return yScale(d[1]);
+							 })
+			 }
+			 radec = !radec;
+		 }, 3000);
+
+     })
+ </script>
+ </body>
+ </html>
