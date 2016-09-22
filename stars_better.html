@@ -47,7 +47,7 @@
 			 .attr("transform", "translate(" +(bufferSvg-2) + ",0)")
 			 .call( d3.axisLeft(yScale) );
 
-     var csvfile = "csvs/stars-20571.csv";
+     var csvfile = "csvs/stars_skip_100.csv";
      d3.csv( csvfile, function( d ) {
          return [d.ra*1, d.dec*1, d.phot_g_mean_flux *1];
      }, function( data ) {
