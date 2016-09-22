@@ -18,30 +18,38 @@ filenames = [
 	"tgas/TgasSource_000-000-014.csv",
 	"tgas/TgasSource_000-000-015.csv"
 ]
-with open("stars.csv", "w") as csvfileout:
-	datawriter = csv.writer(csvfileout)
-	getfirstrow = True
+fields = ["ra", "dec", "phot_g_mean_flux"]
 
-	count = 0
-	for csvfilename in filenames :
-		print ( csvfilename )
+skipstars = [1000, 500, 250, 100, 50, 25, 10]
 
-		with open(csvfilename, "r") as csvfile:
+for skipstar in skipstars:
+	filenameout = "stars_skip_" + str(skipstar) + ".csv"
+	print( filenameout )
 
-			datareader = csv.reader(csvfile)
+	with open( filenameout, "w" ) as csvfileout:
+		datawriter = csv.writer(csvfileout)
+		getfirstrow = True
+		count = 0
 
-			skiprow = True
-			for row in datareader:
+		for csvfilename in filenames :
+			print( csvfilename )
 
-				if getfirstrow :
-					datawriter.writerow(row)
-					getfirstrow = False
+			with open(csvfilename, "r") as csvfile:
 
-				if not skiprow :
-					if count % 50 == 0:  # Change 50 to produce more or less data
-						datawriter.writerow(row)
+				datareader = csv.DictReader(csvfile)
 
-				skiprow = False
-				count += 1
+				skiprow = True
+				for row in datareader:
 
-	print (count)
+					if getfirstrow :
+						datawriter.writerow(fields)
+						getfirstrow = False
+
+					if not skiprow :
+						if count % skipstar == 0:  # Change 50 to produce more or less data
+							datawriter.writerow([row[fields[0]], row[fields[1]], row[fields[2]]])
+
+					skiprow = False
+					count += 1
+
+		print (count)
