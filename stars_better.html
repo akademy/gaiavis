@@ -26,6 +26,24 @@
              .attr("width",sizeSvg.w - bufferSvg)
              .attr("height",sizeSvg.h - bufferSvg);
 
+	 var xScale = d3.scaleLinear()
+			 .range([bufferSvg,sizeSvg.w])
+			 .domain([0,360]);
+
+	 var yScale = d3.scaleLinear()
+			 .range([0,sizeSvg.h-bufferSvg])
+			 .domain([90,-90]);
+
+	 svg.append("g")
+			 .attr("class", "xaxis bottom")
+			 .attr("transform", "translate(0,"+ (sizeSvg.h-bufferSvg+1) + ")")
+			 .call( d3.axisBottom(xScale) );
+
+	 svg.append("g")
+			 .attr("class", "yaxis left")
+			 .attr("transform", "translate(" +(bufferSvg-2) + ",0)")
+			 .call( d3.axisLeft(yScale) );
+
      var csvfile = "csvs/stars-20571.csv";
      d3.csv( csvfile, function( d ) {
          return [d.ra*1, d.dec*1, d.phot_g_mean_flux *1];
@@ -37,13 +55,6 @@
          var extentFlux = d3.extent(data,function(d) { return d[2]; });
 
          //console.log(extentRa, extentDec, extentFlux);
-         var xScale = d3.scaleLinear()
-                 .range([bufferSvg,sizeSvg.w])
-                 .domain([0,360]);
-
-         var yScale = d3.scaleLinear()
-                 .range([0,sizeSvg.h-bufferSvg])
-                 .domain([90,-90]);
 
          var fluxScale = d3.scaleLinear()
                  .range([1,5])
@@ -56,19 +67,6 @@
 		 var fluxDelayScale = d3.scaleLog()
 				 .range([10000,100])
 				 .domain(extentFlux);
-
-         var xAxisBottom = d3.axisBottom(xScale);
-         svg.append("g")
-                 .attr("class", "xaxis bottom")
-                 .attr("transform", "translate(0,"+ (sizeSvg.h-bufferSvg+1) + ")")
-                 .call(xAxisBottom);
-
-
-         var yAxisLeft= d3.axisLeft(yScale);
-         svg.append("g")
-                 .attr("class", "yaxis left")
-                 .attr("transform", "translate(" +(bufferSvg-2) + ",0)")
-                 .call(yAxisLeft);
 
          svg.append("g").selectAll("circle")
                  .data(data)
