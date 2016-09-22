@@ -32,13 +32,12 @@
              .attr("width",sizeSvg.w - bufferSvg)
              .attr("height",sizeSvg.h - bufferSvg);
 
-     //
-     // "csvs/stars-2044.csv";
-     // "csvs/stars-10283.csv";
-     // "csvs/stars-20571.csv";
-     // "csvs/stars-27428.csv";
-     // "csvs/stars-41142.csv";
-     var csvfile = "csvs/stars-4013.csv";
+	 // "csvs/stars_skip_50.csv";
+	 // "csvs/stars_skip_100.csv";
+	 // "csvs/stars_skip_250.csv";
+	 // "csvs/stars_skip_500.csv";
+	 // "csvs/stars_skip_1000.csv";
+     var csvfile = "csvs/stars_skip_100.csv";
      d3.csv( csvfile, function( d ) {
          var ra = d.ra * 1,
 				 l = d.l *1;
