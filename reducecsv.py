@@ -1,6 +1,6 @@
 import csv
 
-filenames = [
+source_csv_filenames = [
 	"tgas/TgasSource_000-000-000.csv",
 	"tgas/TgasSource_000-000-001.csv",
 	"tgas/TgasSource_000-000-002.csv",
@@ -18,38 +18,62 @@ filenames = [
 	"tgas/TgasSource_000-000-014.csv",
 	"tgas/TgasSource_000-000-015.csv"
 ]
-fields = ["ra", "dec", "phot_g_mean_flux"]
+field_settings = [
+	{
+		"names" : ["ra", "dec"],
+		"fields" : ["ra", "dec"]
+	},
+	{
+		"names" : ["ra", "dec", "flux"],
+		"fields" : ["ra", "dec", "phot_g_mean_flux"]
+	},
+	{
+		"names" : ["ra", "dec", "flux", "l", "b"],
+		"fields" : ["ra", "dec", "phot_g_mean_flux", "l", "b"]
+	}
+]
 
-skipstars = [1000, 500, 250, 100, 50, 25, 10]
+# Create csvs with these "skip" numbers
+skip_stars = [1000, 500, 250, 100, 50, 25, 10]
 
-for skipstar in skipstars:
-	filenameout = "stars_skip_" + str(skipstar) + ".csv"
-	print( filenameout )
+for field_setting in field_settings :
 
-	with open( filenameout, "w" ) as csvfileout:
-		datawriter = csv.writer(csvfileout)
-		getfirstrow = True
-		count = 0
+	file_fields = "[" + "-".join( field_setting["names"] ) + "]"
 
-		for csvfilename in filenames :
-			print( csvfilename )
+	for skip_star in skip_stars:
+		filename_out = "csvs2/stars_skip" + str( skip_star ) + "_" + file_fields + ".csv"
+		print(filename_out)
 
-			with open(csvfilename, "r") as csvfile:
+		with open( filename_out, "w" ) as csvfile_out:
+			datawriter = csv.writer( csvfile_out )
+			getfirstrow = True
+			count = 0
 
-				datareader = csv.DictReader(csvfile)
+			for csvfilename in source_csv_filenames :
+				print( csvfilename )
 
-				skiprow = True
-				for row in datareader:
+				with open( csvfilename, "r" ) as csvfile:
 
-					if getfirstrow :
-						datawriter.writerow(fields)
-						getfirstrow = False
+					datareader = csv.DictReader( csvfile )
 
-					if not skiprow :
-						if count % skipstar == 0:  # Change 50 to produce more or less data
-							datawriter.writerow([row[fields[0]], row[fields[1]], row[fields[2]]])
+					skiprow = True
+					for row in datareader:
 
-					skiprow = False
-					count += 1
+						if getfirstrow :
+							datawriter.writerow( field_setting["names"] )
+							getfirstrow = False
 
-		print (count)
+						if not skiprow :
+							if count % skip_star == 0:
+
+								row_write = []
+								for field in field_setting["fields"]:
+									row_write.append( row[field] )
+
+								datawriter.writerow(row_write)
+
+						skiprow = False
+						count += 1
+
+			print( count )
+
