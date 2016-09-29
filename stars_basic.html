@@ -12,7 +12,7 @@
 			.attr("height",height)
 			.attr("style","cursor:crosshair");
 
-	d3.csv( "stars.csv", function(row) {
+	d3.csv( "csvs/stars_skip500_[ra-dec].csv", function(row) {
 		return {ra:row.ra *1, dec:row.dec*1};
 	}, function( data ) {
 		var xScale = d3.scaleLinear()
