@@ -10,9 +10,9 @@
 	var svg = d3.select("div").append("svg")
 			.attr("width",width)
 			.attr("height",height)
-			.attr("style","cursor:crosshair");
+			.style("cursor", "crosshair");
 
-	d3.csv( "csvs/stars_skip500_[ra-dec].csv", function(row) {
+	d3.csv( "csvs/stars_skip250_[ra-dec].csv", function(row) {
 		return {ra:row.ra *1, dec:row.dec*1};
 	}, function( data ) {
 		var xScale = d3.scaleLinear()
@@ -27,9 +27,10 @@
 				.data(data)
 				.enter()
 				.append("circle")
-				.attr("cx",function(d) { return xScale(d.ra); })
-				.attr("cy",function(d) { return yScale(d.dec); })
-				.attr("r", 1 );
+				.attr( "cx",function(d) { return xScale(d.ra); } )
+				.attr( "cy",function(d) { return yScale(d.dec); } )
+				.attr( "r", 1 )
+                .style( "pointer-events", "none" );
 
 		//
 		// Super secret extra stuff (To show coordinates)
@@ -37,8 +38,9 @@
 		var text = svg.append("text")
 				.attr("x",20)
 				.attr("y",10 )
-				.attr("fill","red")
-				.attr("font-weight", "bold")
+				.style("fill","red")
+				.style("font-weight", "bold")
+                .style( "pointer-events", "none" )
 				.text("");
 
 		var lineX = svg.append("line")
@@ -46,28 +48,30 @@
 				.attr("x2", width)
 				.attr("y1", 0)
 				.attr("y2", 0)
-				.attr("stroke","red")
-				.attr("stroke-width",0.5);
+				.style("stroke","red")
+				.style("stroke-width",0.5)
+                .style( "pointer-events", "none" );
 
 		var lineY = svg.append("line")
 				.attr("x1", 0)
 				.attr("x2", 0)
 				.attr("y1", 0)
 				.attr("y2", height)
-				.attr("stroke","red")
-				.attr("stroke-width",0.5);
+				.style("stroke", "red")
+				.style("stroke-width", 0.5)
+				.style("pointer-events", "none");
 
-		svg.on("mousemove", function() {
-				var pos = d3.mouse(svg.node()),
-						ra = xScale.invert(pos[0]),
-						dec = yScale.invert(pos[1]);
+		svg.on("mousemove", function () {
+			var pos = d3.mouse(svg.node()),
+					ra = xScale.invert(pos[0]),
+					dec = yScale.invert(pos[1]);
 
-				text.attr("x", pos[0]+10)
-						.attr("y", pos[1]-10)
-						.text("RA: " + ra.toFixed(0) + " , Dec: " + dec.toFixed(0));
+			text.attr("x", pos[0] + 10)
+					.attr("y", pos[1] - 10)
+					.text("RA: " + ra.toFixed(0) + " , Dec: " + dec.toFixed(0));
 
-				lineX.attr("y1",pos[1] ).attr("y2",pos[1]);
-				lineY.attr("x1",pos[0] ).attr("x2",pos[0]);
+			lineX.attr("y1", pos[1]).attr("y2", pos[1]);
+			lineY.attr("x1", pos[0]).attr("x2", pos[0]);
 		})
 	})
 </script>
