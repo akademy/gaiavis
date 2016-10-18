@@ -1,123 +1,112 @@
 <!DOCTYPE HTML>
 <html>
- <head>
-	 <meta charset="utf-8">
-     <style></style>
- </head>
- <body>
-<h1>Twenty thousand Gaia positioned stars</h1>
-<div></div>
-<p style="max-width:1000px;line-height:1.5;">This work has made use of data from the European Space Agency (ESA) mission Gaia (http://www.cosmos.esa.int/gaia), processed by the Gaia Data Processing and Analysis Consortium (DPAC, http://www.cosmos.esa.int/web/gaia/dpac/consortium). Funding for the DPAC has been provided by national institutions, in particular the institutions participating in the Gaia Multilateral Agreement.</p>
- <script src="https://d3js.org/d3.v4.min.js"></script>
- <script>
-	window.onload = function() {
-		var svg = d3.select("div").append("svg"),
-				bufferSvg = 25,
-				sizeSvg = {"w": (360 * 3 + bufferSvg), "h": (180 * 3 + bufferSvg)};
+	<head>
+		<meta charset="utf-8">
+        <style></style>
+	</head>
+	<body>
+	<h1>Two hundred thousand Gaia positioned stars</h1>
+	<p>It might take a while to load this, please be patient...</p>
+	<p>See my blog for info about this <a href="http://blog.akademy.co.uk/2016/09/gaia-star-data-with-d3-part-1/">http://blog.akademy.co.uk/2016/09/gaia-star-data-with-d3-part-1/</a></p>
+	<div></div>
+	<p style="max-width:1000px;line-height:1.5;">This work has made use of data from the European Space Agency (ESA) mission Gaia (http://www.cosmos.esa.int/gaia), processed by the Gaia Data Processing and Analysis Consortium (DPAC, http://www.cosmos.esa.int/web/gaia/dpac/consortium). Funding for the DPAC has been provided by national institutions, in particular the institutions participating in the Gaia Multilateral Agreement.</p>
+	<script src="https://d3js.org/d3.v4.min.js"></script>
+	<script>
+		window.onload = function() {
+			var svg = d3.select("div").append("svg"),
+					bufferSvg = 25,
+					sizeSvg = {"w": (360 * 3 + bufferSvg), "h": (180 * 3 + bufferSvg)};
 
-		svg.attr("width", sizeSvg.w)
-				.attr("height", sizeSvg.h);
+			svg.attr("width", sizeSvg.w)
+					.attr("height", sizeSvg.h);
 
-		svg.append("rect")
-				.attr("x", bufferSvg)
-				.attr("y", 0)
-				.attr("width", sizeSvg.w - bufferSvg)
-				.attr("height", sizeSvg.h - bufferSvg)
-				.style("fill", "black");
+			svg.append("rect")
+					.attr("x", bufferSvg)
+					.attr("y", 0)
+					.attr("width", sizeSvg.w - bufferSvg)
+					.attr("height", sizeSvg.h - bufferSvg)
+					.style("fill", "black");
 
-		var xScale = d3.scaleLinear()
-				.range([bufferSvg, sizeSvg.w])
-				.domain([0, 360]);
+			var xScale = d3.scaleLinear()
+					.range([bufferSvg, sizeSvg.w])
+					.domain([0, 360]);
 
-		var yScale = d3.scaleLinear()
-				.range([0, sizeSvg.h - bufferSvg])
-				.domain([90, -90]);
+			var yScale = d3.scaleLinear()
+					.range([0, sizeSvg.h - bufferSvg])
+					.domain([90, -90]);
 
-		svg.append("g")
-				.attr("class", "xaxis bottom")
-				.attr("transform", "translate(0," + (sizeSvg.h - bufferSvg + 1) + ")")
-				.call(d3.axisBottom(xScale));
+			svg.append("g")
+					.attr("class", "xaxis bottom")
+					.attr("transform", "translate(0," + (sizeSvg.h - bufferSvg + 1) + ")")
+					.call(d3.axisBottom(xScale));
 
-		svg.append("g")
-				.attr("class", "yaxis left")
-				.attr("transform", "translate(" + (bufferSvg - 2) + ",0)")
-				.call(d3.axisLeft(yScale));
+			svg.append("g")
+					.attr("class", "yaxis left")
+					.attr("transform", "translate(" + (bufferSvg - 2) + ",0)")
+					.call(d3.axisLeft(yScale));
 
-		var csvfile = "csvs/stars_skip100_[ra-dec-flux].csv";
-		d3.csv(csvfile, function (d) {
-			return [d.ra * 1, d.dec * 1, d.flux * 1];
-		}, function (data) {
+			var csvfile = "csvs/stars_skip10_[ra-dec-flux].csv";
+			d3.csv(csvfile, function (d) {
+				return [d.ra * 1, d.dec * 1, d.flux * 1];
+			}, function (data) {
 
-			var ira = 0, idec = 1, iflux = 2;
+				var ira = 0, idec = 1, iflux = 2;
 
-			var total = data.length;
-			console.log(total, "stars");
+				var total = data.length;
+				console.log(total, "stars");
 
-			data.sort(function (d, e) {
-				return d[iflux] - e[iflux]; // bright ones appear at end of list
-			});
+				data.sort(function (d, e) {
+					return d[iflux] - e[iflux]; // bright ones appear at end of list
+				});
 
-			console.log("sorted");
+				console.log("sorted");
 
-			var extentFlux = [data[0][iflux], data[data.length - 1][iflux]];//d3.extent(data,function(d) { return d[iflux]; });//[10000,100000000];//
+				var extentFlux = [data[0][iflux], data[data.length - 1][iflux]];//d3.extent(data,function(d) { return d[iflux]; });//[10000,100000000];//
 
-			var fluxRadiusScale = d3.scaleLinear()
-					.range([1, 5])
-					.domain(extentFlux);
+				var fluxRadiusScale = d3.scaleLinear()
+						.range([1, 5])
+						.domain(extentFlux);
 
-			var fluxColourScale = d3.scaleLog()
-					.range([0x33, 0xFF])
-					.domain(extentFlux);
+				var fluxColourScale = d3.scaleLog()
+						.range([0x66, 0xFF])
+						.domain(extentFlux);
 
-			var fluxOpacityScale = d3.scaleLog()
-					.range([0.5,1])
-					.domain(extentFlux);
+				var fluxOpacityScale = d3.scaleLog()
+						.range([0,1])
+						.domain([extentFlux[0]*10,extentFlux[1]]);
 
-			//var fluxDelayScale = d3.scaleLog()
-			// 		.range([10000,100])
-			// 		.domain(extentFlux);
+				var colours = d3.schemeCategory10;
 
-			svg.append("g").selectAll("circle")
-					.data(data)
-					.enter()
-						.append("circle")
+				svg.append("g").selectAll("circle")
+						.data(data)
+						.enter()
+							.append("circle")
 
-						.style("pointer-events", "none")
+							.style("pointer-events", "none")
 
-						.attr("cx", function (d) {
-							return xScale(d[ira]);
-						})
-						.attr("cy", function (d) {
-							return yScale(d[idec]);
-						})
-						.attr("r", function (d) {
-							return fluxRadiusScale(d[iflux]);
-						})
-						//.style("fill","black")
-						//.transition()
-						//.delay(function(d) {
-						//	//return (d[0] + d[1])*10;
-						//	return fluxDelayScale(d[2]);
-						//})
-						//.delay( function(d,i) { return 4000 * (i/total); })
+							.attr("cx", function (d) {
+								return xScale(d[ira]);
+							})
+							.attr("cy", function (d) {
+								return yScale(d[idec]);
+							})
+							.attr("r", function (d) {
+								return fluxRadiusScale(d[iflux]);
+							})
 
-						/*.style("fill", function (d) {
-							var flux = d[iflux];
-							var col = Math.ceil(fluxColourScale(flux)) + "";
-							if( (flux % 16) < 1 ) {
-								return "rgb(" + col + "," + col + "," + "255" + ")";
-							}
-							else if( (flux % 16) < 2 ) {
-								return "rgb(" + "255" + "," + col + "," + col + ")";
-							}
-							else {
-								return "rgb(" + col + "," + col + "," + col + ")";
-							}
-						})*/
+							.style("fill","white")
+							//.style("fill", function (d,i) {
+							//	return colours[i%10];
+							//})
+							//.style("fill", function (d) {
+							//	var fluxColour = Math.ceil( fluxColourScale( d[iflux] ));
+							//	return "rgb(" + fluxColour + "," + fluxColour +"," + fluxColour + ")";
+							//})
 
-						.style("fill","white")
-						.style("opacity", function(d) { return fluxOpacityScale(d[iflux]);} )
-						.style("stroke-width","0");
+							.style("opacity", function(d) {
+								return fluxOpacityScale(d[iflux]);
+							})
+							.style("stroke-width","0");
 
 		});
 	}
