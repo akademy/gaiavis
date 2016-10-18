@@ -64,7 +64,7 @@
 				var extentFlux = [data[0][iflux], data[data.length - 1][iflux]];//d3.extent(data,function(d) { return d[iflux]; });//[10000,100000000];//
 
 				var fluxRadiusScale = d3.scaleLinear()
-						.range([1, 5])
+						.range([0.5, 3])
 						.domain(extentFlux);
 
 				var fluxColourScale = d3.scaleLog()
