@@ -6,13 +6,15 @@
 	</head>
 	<body>
 	<h1>Two hundred thousand Gaia positioned stars</h1>
-	<p>It might take a while to load this, please be patient...</p>
 	<p>See my blog for info about this <a href="http://blog.akademy.co.uk/2016/09/gaia-star-data-with-d3-part-2-prettier-faster/">http://blog.akademy.co.uk/2016/09/gaia-star-data-with-d3-part-2-prettier-faster/</a></p>
 	<p>See an animated simpler version here:  <a href="http://vis.akademy.uk/gaia/stars.html">http://vis.akademy.uk/gaia/stars.html</a></p>
-	<div></div>
+
+	<p>It might take a while to generate this, please be patient...</p><div></div>
 	<p style="max-width:1000px;line-height:1.5;">This work has made use of data from the European Space Agency (ESA) mission Gaia (http://www.cosmos.esa.int/gaia), processed by the Gaia Data Processing and Analysis Consortium (DPAC, http://www.cosmos.esa.int/web/gaia/dpac/consortium). Funding for the DPAC has been provided by national institutions, in particular the institutions participating in the Gaia Multilateral Agreement.</p>
 
-	<script src="https://d3js.org/d3.v4.min.js"></script>
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+    <script src="js/loadingAnimation.js"></script>
+
 	<script>
 		window.onload = function() {
 			var svg = d3.select("div").append("svg"),
@@ -28,6 +30,18 @@
 					.attr("width", sizeSvg.w - bufferSvg)
 					.attr("height", sizeSvg.h - bufferSvg)
 					.style("fill", "black");
+
+            var config = {
+                select: "div",
+                svgD3 : svg,
+				width: sizeSvg.w,
+				height: sizeSvg.h,
+				fill: "red",
+				stroke: "white"
+            };
+
+            // Chart create
+            //var waiter = chart.create( null, config );
 
 			var xScale = d3.scaleLinear()
 					.range([bufferSvg, sizeSvg.w])
@@ -55,13 +69,11 @@
 				var ira = 0, idec = 1, iflux = 2;
 
 				var total = data.length;
-				console.log(total, "stars");
+				console.log( total + " stars");
 
 				data.sort(function (d, e) {
 					return d[iflux] - e[iflux]; // bright ones appear at end of list
 				});
-
-				console.log("sorted");
 
 				var extentFlux = [data[0][iflux], data[data.length - 1][iflux]];//d3.extent(data,function(d) { return d[iflux]; });//[10000,100000000];//
 
