@@ -9,8 +9,13 @@
 	<p>See my blog for info about this <a href="http://blog.akademy.co.uk/2016/09/gaia-star-data-with-d3-part-2-prettier-faster/">http://blog.akademy.co.uk/2016/09/gaia-star-data-with-d3-part-2-prettier-faster/</a></p>
 	<p>See an animated simpler version here:  <a href="http://vis.akademy.uk/gaia/stars.html">http://vis.akademy.uk/gaia/stars.html</a></p>
 
-	<p>It might take a while to generate this, please be patient...</p><div></div>
+	<p>It might take a while to generate this, please be patient: <span id="update" style="color:red">Working...</span></p>
+
+
+	<div></div>
+
 	<p style="max-width:1000px;line-height:1.5;">This work has made use of data from the European Space Agency (ESA) mission Gaia (http://www.cosmos.esa.int/gaia), processed by the Gaia Data Processing and Analysis Consortium (DPAC, http://www.cosmos.esa.int/web/gaia/dpac/consortium). Funding for the DPAC has been provided by national institutions, in particular the institutions participating in the Gaia Multilateral Agreement.</p>
+
 
     <script src="https://d3js.org/d3.v4.min.js"></script>
     <script src="js/loadingAnimation.js"></script>
@@ -19,7 +24,7 @@
 		window.onload = function() {
 			var svg = d3.select("div").append("svg"),
 					bufferSvg = 25,
-					sizeSvg = {"w": (360 * 3 + bufferSvg), "h": (180 * 3 + bufferSvg)};
+					sizeSvg = {"w": (360 * 4 + bufferSvg), "h": (180 * 3 + bufferSvg)};
 
 			svg.attr("width", sizeSvg.w)
 					.attr("height", sizeSvg.h);
@@ -61,7 +66,10 @@
 					.attr("transform", "translate(" + (bufferSvg - 2) + ",0)")
 					.call(d3.axisLeft(yScale));
 
+			document.getElementById("update").innerText = "Loading...";
+
 			var csvfile = "csvs/stars_skip10_[ra-dec-flux].csv";
+			//csvfile = "csvs/stars_skip100_[ra-dec-flux].csv";
 			d3.csv(csvfile, function (d) {
 				return [d.ra * 1, d.dec * 1, d.flux * 1];
 			}, function (data) {
@@ -73,30 +81,40 @@
 					return d[iflux] - e[iflux]; // bright ones appear at end of list
 				});
 
-                console.log( total + " stars");
-
-				var extentFlux = [data[0][iflux], data[data.length - 1][iflux]];//d3.extent(data,function(d) { return d[iflux]; });//[10000,100000000];//
+				var extentFlux = [data[0][iflux], data[data.length - 1][iflux]]; //d3.extent(data,function(d) { return d[iflux]; });//[10000,100000000];//
 
 				var fluxRadiusScale = d3.scaleLinear()
 						.range([0.5, 3])
 						.domain(extentFlux);
 
-				var fluxColourScale = d3.scaleLog()
-						.range([0x66, 0xFF])
+				var fluxOpacityScale = d3.scaleLog()
+						.range([0.1,1])
 						.domain(extentFlux);
 
-				var fluxOpacityScale = d3.scaleLog()
-						.range([0,1])
-						.domain([extentFlux[0]*10, extentFlux[1]]);
 
-				svg.append("g")
-					.style("pointer-events", "none")
-					.style("fill","white")
-					.style("stroke-width","0")
-					.selectAll("circle")
-						.data(data)
-						.enter()
-							.append("circle")
+				document.getElementById("update").innerText = "Creating...";
+				console.log( total + " stars");
+
+				setTimeout( function() {
+					var g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+					g.id = "stars";
+
+					for (var i = 0; i < data.length; i++) {
+						g.appendChild(document.createElementNS("http://www.w3.org/2000/svg", "circle"));
+					}
+					svg.node().appendChild(g);
+
+					console.log("created nodes");
+					document.getElementById("update").innerText = "Updating...";
+
+					setTimeout( function() {
+
+						svg.select("g#stars")
+							.style("pointer-events", "none")
+							.style("fill", "white")
+							.style("stroke-width", "0")
+							.selectAll("circle")
+							.data(data)
 							.attr("cx", function (d) {
 								return xScale(d[ira]);
 							})
@@ -106,19 +124,41 @@
 							.attr("r", function (d) {
 								return fluxRadiusScale(d[iflux]);
 							})
-							.style("opacity", function(d) {
+							.style("opacity", function (d) {
 								return fluxOpacityScale(d[iflux]);
 							})
+						;
 
 
+						document.getElementById("update").innerText = "Displaying...";
+						console.log("updated values");
 
-                //.style("fill", function (d,i) {
-                //	return colours[i%10];
-                //})
-                //.style("fill", function (d) {
-                //	var fluxColour = Math.ceil( fluxColourScale( d[iflux] ));
-                //	return "rgb(" + fluxColour + "," + fluxColour +"," + fluxColour + ")";
-                //})
+						setTimeout( function() {
+							document.getElementById("update").innerText = "Done"; // maybe...
+
+							/*setTimeout( function() {
+								console.log("Updating flux");
+								fluxOpacityScale = d3.scaleLog()
+									.range([0,0.8])
+									.domain(extentFlux);
+
+								svg.select("g#stars")
+									.selectAll("circle")
+									.data(data)
+									.transition()
+									.duration(5000)
+									.style("opacity", function (d) {
+										return fluxOpacityScale(d[iflux]);
+									})
+								;
+
+								console.log("Done");
+							}, 3000 );*/
+
+						}, 1000 );
+
+					}, 50 );
+				}, 50 );
 		});
 	}
  </script>
